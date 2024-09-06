@@ -10,6 +10,7 @@
       <TargetName>Test_task</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -338,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;..\User_Code\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -496,6 +497,31 @@
               <FileName>system_stm32f1xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/system_stm32f1xx.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>User_Code</GroupName>
+          <Files>
+            <File>
+              <FileName>Buttons_Update.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\User_Code\Inc\Buttons_Update.h</FilePath>
+            </File>
+            <File>
+              <FileName>Buttons_Update.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User_Code\Src\Buttons_Update.c</FilePath>
+            </File>
+            <File>
+              <FileName>Commands_Update.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\User_Code\Inc\Commands_Update.h</FilePath>
+            </File>
+            <File>
+              <FileName>Commands_Update.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User_Code\Src\Commands_Update.c</FilePath>
             </File>
           </Files>
         </Group>

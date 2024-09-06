@@ -88,7 +88,7 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-
+	HAL_TIM_Base_Start_IT(&htim4);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -142,7 +142,13 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim->Instance == TIM4)
+	{
+		
+	}
+}
 /* USER CODE END 4 */
 
 /**
