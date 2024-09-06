@@ -10,9 +10,8 @@
 typedef struct
 {
 	
-	uint16_t 	TxBuffer;
-	uint16_t 	RxBuffer;
 	uint16_t* Command;
+	uint16_t	Pressed_counter;
 	
 } T_Commands;
 

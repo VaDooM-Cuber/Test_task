@@ -672,19 +672,9 @@
           <GroupName>User_Code</GroupName>
           <Files>
             <File>
-              <FileName>Buttons_Update.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\User_Code\Inc\Buttons_Update.h</FilePath>
-            </File>
-            <File>
               <FileName>Buttons_Update.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User_Code\Src\Buttons_Update.c</FilePath>
-            </File>
-            <File>
-              <FileName>Commands_Update.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\User_Code\Inc\Commands_Update.h</FilePath>
             </File>
             <File>
               <FileName>Commands_Update.c</FileName>
