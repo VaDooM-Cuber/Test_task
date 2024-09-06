@@ -1,0 +1,8 @@
+*.o
+*.Vadim
+*.d
+*.axf
+*.hex
+*.dep
+*.map
+*.lnp
