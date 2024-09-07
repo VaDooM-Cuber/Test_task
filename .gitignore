@@ -8,3 +8,8 @@
 *.lnp
 *.crf
 *.htm
+Test_task/MDK-ARM/Test_task/ExtDll.iex
+Test_task/MDK-ARM/EventRecorderStub.scvd
+Test_task/MDK-ARM/Test_task.uvoptx
+Test_task/MDK-ARM/Test_task.uvprojx
+Test_task/MDK-ARM/RTE/_Test_task/RTE_Components.h
