@@ -48,14 +48,17 @@
 /* USER CODE BEGIN PV */
 uint16_t Global_Counter = 0;
 uint16_t Counter_20Hz = 0;
+uint16_t Counter_of_Pressed = 0;
 
 T_Button Button_1;
 T_Button Button_2;
 T_Button Button_3;
 T_Button Button_4;
 
-uint16_t Short_Response_Time = 20;
-uint16_t Long_Response_Time = 50;
+uint16_t gpio_status = 0;
+
+uint16_t Short_Response_Time = 4;
+uint16_t Long_Response_Time = 30;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -172,8 +175,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if (Global_Counter >= 5)
 		{
 			Global_Counter = 0;
-			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+			//HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 		}
+		
+		//gpio_status = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4);
+		gpio_status = Button_Update(&Button_1, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4));
+		if (gpio_status == BUTTON_SHORT_PRESSED)
+		{
+			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+			Counter_of_Pressed++;
+		}
+		else if (gpio_status == BUTTON_LONG_PRESSED)
+			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
 	}
 }
 /* USER CODE END 4 */
