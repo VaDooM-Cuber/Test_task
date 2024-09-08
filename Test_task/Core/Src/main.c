@@ -26,6 +26,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Buttons_Update.h"
+#include "Commands_Update.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,18 +47,19 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint16_t Global_Counter = 0;
-uint16_t Counter_20Hz = 0;
+char Hello_String[7] = "Hello!\n";
+char Busy_String[16] = "Device is busy!\n";
 uint16_t Counter_of_Pressed = 0;
+bool Busy_Mode = false;
+bool Blink_Mode = false;
 
+T_Commands Command;
 T_Button Button_1;
 T_Button Button_2;
 T_Button Button_3;
 T_Button Button_4;
 
-uint16_t gpio_status = 0;
-
-uint16_t Short_Response_Time = 4;
+uint16_t Short_Response_Time = 2;
 uint16_t Long_Response_Time = 30;
 /* USER CODE END PV */
 
@@ -92,6 +94,7 @@ int main(void)
 	Button_Init(&Button_2, &Short_Response_Time, &Long_Response_Time, 20);
 	Button_Init(&Button_3, &Short_Response_Time, &Long_Response_Time, 20);
 	Button_Init(&Button_4, &Short_Response_Time, &Long_Response_Time, 20);
+	Commands_Init(&Command);
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -165,30 +168,12 @@ void SystemClock_Config(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if (htim->Instance == TIM4)
-	{
-		if (++Counter_20Hz >= FREQ_20HZ)
-		{
-			Counter_20Hz = 0;
-			Global_Counter++;
-		}
-		
-		if (Global_Counter >= 5)
-		{
-			Global_Counter = 0;
-			//HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-		}
-		
-		//gpio_status = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4);
-		gpio_status = Button_Update(&Button_1, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4));
-		if (gpio_status == BUTTON_SHORT_PRESSED)
-		{
-			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
-			Counter_of_Pressed++;
-		}
-		else if (gpio_status == BUTTON_LONG_PRESSED)
-			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+	{		
+		Buttons_Update();
+		Led_Blink(&Command, Counter_of_Pressed, &Blink_Mode);
 	}
 }
+
 /* USER CODE END 4 */
 
 /**

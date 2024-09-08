@@ -6,21 +6,7 @@
 #include "stdint.h"
 #include "stdbool.h"
 
-//----------------------------------------------------------------------------------------------------//
-
-typedef union
-{
-	
-	uint8_t all;
-	struct
-	{
-		uint8_t Short_Press : 1;
-		uint8_t Long_Press	: 1;
-		uint8_t Init				: 1;
-		uint8_t Reserved		: 5;
-	} bit;
-	
-} T_Statuses;
+#include "Commands_Update.h"
 
 //----------------------------------------------------------------------------------------------------//
 
@@ -29,8 +15,7 @@ typedef enum
 	
 	BUTTON_NONE_PRESSED = 0,
 	BUTTON_SHORT_PRESSED,
-	BUTTON_LONG_PRESSED,
-	NO_INITIALIZE
+	BUTTON_LONG_PRESSED
 	
 } E_Buttons_Pressed;
 
@@ -44,7 +29,7 @@ typedef struct
 	uint16_t*  pShort_Response_Time;			 // Уставка по времени, через которое будет зафиксировано короткое нажатие
 	uint16_t*  pLong_Response_Time;			 	 // Уставка по времени, через которое будет зафиксировано длинное нажатие
 	uint16_t	 Freq_Update;							 	 // Частота, на которой вызывается функция обработки кнопки
-	T_Statuses Statuses;								 	 // Статус кнопки
+	bool			 bIs_Init;									 // Статус инициализации кнопки
 	bool			 bFlag_Long_Pressed;				 // Флаг, указывающий, что кнопка была задата и не отпущена
 	
 } T_Button;
@@ -54,10 +39,10 @@ typedef struct
 typedef struct
 {
 	
-	uint16_t Bt_1;
-	uint16_t Bt_2;
-	uint16_t Bt_3;
-	uint16_t Bt_4;
+	T_Button* Button_1;
+	T_Button* Button_2;
+	T_Button* Button_3;
+	T_Button* Button_4;
 	
 } T_Buttons;
 
@@ -69,10 +54,8 @@ void Button_Init(T_Button* p,
 								 uint16_t  Freq_Update);
 
 E_Buttons_Pressed Button_Update(T_Button* p, uint16_t GPIO_Status);
-void Get_GPIO_Status(void);
 
-void Buttons_Init(T_Buttons* p);
-void Buttons_Update(T_Buttons* p);
+void Buttons_Update(void);
 
 #endif // BUTTONS_UPDATE_H_
 
