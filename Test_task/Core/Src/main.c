@@ -41,26 +41,13 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define FREQ_20HZ 20U
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-char Hello_String[7] = "Hello!\n";
-char Busy_String[16] = "Device is busy!\n";
-uint16_t Counter_of_Pressed = 0;
-bool Busy_Mode = false;
-bool Blink_Mode = false;
 
-T_Commands Command;
-T_Button Button_1;
-T_Button Button_2;
-T_Button Button_3;
-T_Button Button_4;
-
-uint16_t Short_Response_Time = 2;
-uint16_t Long_Response_Time = 30;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -71,7 +58,10 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+uint16_t Short_Response_Time = 2;
+uint16_t Long_Response_Time = 30;
+uint8_t	 Rx_Buffer[2] = {0};
+uint16_t Recieve_Number = 0;
 /* USER CODE END 0 */
 
 /**
@@ -90,11 +80,10 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-	Button_Init(&Button_1, &Short_Response_Time, &Long_Response_Time, 20);
-	Button_Init(&Button_2, &Short_Response_Time, &Long_Response_Time, 20);
-	Button_Init(&Button_3, &Short_Response_Time, &Long_Response_Time, 20);
-	Button_Init(&Button_4, &Short_Response_Time, &Long_Response_Time, 20);
-	Commands_Init(&Command);
+	Button_Init(&Button_1, &Short_Response_Time, &Long_Response_Time);
+	Button_Init(&Button_2, &Short_Response_Time, &Long_Response_Time);
+	Button_Init(&Button_3, &Short_Response_Time, &Long_Response_Time);
+	Button_Init(&Button_4, &Short_Response_Time, &Long_Response_Time);
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -110,8 +99,8 @@ int main(void)
   MX_TIM4_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-	//HAL_UART_Receive_DMA(&huart1, 
 	HAL_TIM_Base_Start_IT(&htim4);
+	HAL_UART_Receive_DMA(&huart1, Rx_Buffer, 2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -167,11 +156,24 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+	
 	if (htim->Instance == TIM4)
 	{		
-		Buttons_Update();
-		Led_Blink(&Command, Counter_of_Pressed, &Blink_Mode);
+		Command.Current_Command = Buttons_Update();
+		Commands_Handling(&Command);
 	}
+	
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	
+	if (huart->Instance == USART1)
+	{
+		Recieve_Number  = Rx_Buffer[0];
+		Recieve_Number |= Rx_Buffer[1] << 8;
+	}
+	
 }
 
 /* USER CODE END 4 */

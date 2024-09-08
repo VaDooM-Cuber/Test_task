@@ -4,35 +4,66 @@
 
 //----------------------------------------------------------------------------------------------------//
 
-extern char Hello_String[];
-extern char Busy_String[];
-extern uint16_t Counter_of_Pressed;
-extern bool Busy_Mode;
-extern bool Blink_Mode;
+T_Button Button_1;
+T_Button Button_2;
+T_Button Button_3;
+T_Button Button_4;
 
-extern T_Button Button_1;
-extern T_Button Button_2;
-extern T_Button Button_3;
-extern T_Button Button_4;
+//----------------------------------------------------------------------------------------------------//
+
+static E_Buttons_Pressed Button_Update(T_Button* p, uint16_t GPIO_Status);
 
 //----------------------------------------------------------------------------------------------------//
 
 void Button_Init(T_Button* p,
 								 uint16_t* Short_Response_Time,
-								 uint16_t* Long_Response_Time,
-								 uint16_t  Freq_Update)
+								 uint16_t* Long_Response_Time)
 {
 	
 	p->pShort_Response_Time = Short_Response_Time;
 	p->pLong_Response_Time = Long_Response_Time;
-	p->Freq_Update = Freq_Update;
 	p->bIs_Init = true;
 	
 }
 
 //----------------------------------------------------------------------------------------------------//
 
-E_Buttons_Pressed Button_Update(T_Button* p, uint16_t GPIO_Status)
+E_Commands Buttons_Update(void)
+{
+	
+	E_Commands Current_command = CMD_NONE;
+	
+	uint16_t gpio_status_1 = Button_Update(&Button_1, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4));
+	uint16_t gpio_status_2 = Button_Update(&Button_2, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5));
+	uint16_t gpio_status_3 = Button_Update(&Button_3, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6));
+	uint16_t gpio_status_4 = Button_Update(&Button_4, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_7));
+	
+
+	if (gpio_status_1 == BUTTON_SHORT_PRESSED)
+		Current_command = CMD_POWER_ON;
+	else if (gpio_status_1 == BUTTON_LONG_PRESSED)
+		Current_command = CMD_RESET;
+	else if (gpio_status_2 == BUTTON_SHORT_PRESSED)
+		Current_command = CMD_SEND_BUSY;
+	else if (gpio_status_2 == BUTTON_LONG_PRESSED)
+		Current_command = CMD_SEND_MESSAGE;
+	else if (gpio_status_3 == BUTTON_SHORT_PRESSED)
+		Current_command = CMD_SEND_BUTTON_PRESSED_COUNTER; 
+	else if (gpio_status_3 == BUTTON_LONG_PRESSED)
+		Current_command = CMD_RESET_BUTTON_COUNTER;
+	else if (gpio_status_4 == BUTTON_SHORT_PRESSED)
+		Current_command = CMD_SEND_DEVIDER;
+	else if (gpio_status_4 == BUTTON_LONG_PRESSED)
+		Current_command = CMD_BLINK_LED;
+	
+	
+	return Current_command;
+	
+}
+
+//----------------------------------------------------------------------------------------------------//
+
+static E_Buttons_Pressed Button_Update(T_Button* p, uint16_t GPIO_Status)
 {
 	
 	if (!p->bIs_Init)
@@ -65,62 +96,6 @@ E_Buttons_Pressed Button_Update(T_Button* p, uint16_t GPIO_Status)
 	}
 	
 	return Button_Stauts_Temp;
-	
-}
-
-//----------------------------------------------------------------------------------------------------//
-
-void Buttons_Update(void)
-{
-	
-	uint16_t gpio_status_1 = Button_Update(&Button_1, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4));
-	uint16_t gpio_status_2 = Button_Update(&Button_2, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5));
-	uint16_t gpio_status_3 = Button_Update(&Button_3, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6));
-	uint16_t gpio_status_4 = Button_Update(&Button_4, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_7));
-	
-	if (gpio_status_1 == BUTTON_LONG_PRESSED && Busy_Mode)
-	{
-		Busy_Mode = false;
-	}
-	
-	bool bWas_Button_Pressed = gpio_status_1 || gpio_status_2 || gpio_status_3 || gpio_status_4;
-	if (bWas_Button_Pressed && Busy_Mode)
-	{
-		HAL_UART_Transmit_DMA(&huart1, (uint8_t*)Busy_String, 16);
-		return;
-	}
-
-	if (gpio_status_1 == BUTTON_SHORT_PRESSED)
-	{
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
-	}
-	else if (gpio_status_1 == BUTTON_LONG_PRESSED)
-	{
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
-	}
-	else if (gpio_status_2 == BUTTON_SHORT_PRESSED)
-	{
-		Busy_Mode = true;
-	}
-	else if (gpio_status_2 == BUTTON_LONG_PRESSED)
-	{
-		HAL_UART_Transmit_DMA(&huart1, (uint8_t*)Hello_String, 6);
-	}
-	else if (gpio_status_3 == BUTTON_SHORT_PRESSED)
-	{
-		Counter_of_Pressed++;
-		HAL_UART_Transmit_DMA(&huart1, (uint8_t*)&Counter_of_Pressed, 1);
-	}
-	else if (gpio_status_3 == BUTTON_LONG_PRESSED)
-	{
-		Counter_of_Pressed = 0;
-	}
-	else if (gpio_status_4 == BUTTON_LONG_PRESSED)
-	{
-		Blink_Mode = true;
-	}
-	
-	
 	
 }
 
