@@ -60,8 +60,8 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 uint16_t Short_Response_Time = 2;
 uint16_t Long_Response_Time = 30;
-uint8_t	 Rx_Buffer[2] = {0};
-uint16_t Recieve_Number = 0;
+
+uint8_t Recieve_Number = 0;
 /* USER CODE END 0 */
 
 /**
@@ -100,7 +100,7 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 	HAL_TIM_Base_Start_IT(&htim4);
-	HAL_UART_Receive_DMA(&huart1, Rx_Buffer, 2);
+	HAL_UART_Receive_DMA(&huart1, &Recieve_Number, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -170,8 +170,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	
 	if (huart->Instance == USART1)
 	{
-		Recieve_Number  = Rx_Buffer[0];
-		Recieve_Number |= Rx_Buffer[1] << 8;
+		HAL_UART_Receive_DMA(&huart1, &Recieve_Number, 1);
 	}
 	
 }

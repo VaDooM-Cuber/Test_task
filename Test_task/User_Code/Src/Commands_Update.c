@@ -18,10 +18,15 @@ char Hello_String[7] = "Hello!\n";
 char Busy_String[16] = "Device is busy!\n";
 bool bButtons_Was_Blocked = false;
 bool bBlink_Mode = false;
+uint8_t GCD_Value = 0;
+uint8_t Num_of_Blink = 0;
+
+extern uint8_t Recieve_Number;
 
 //----------------------------------------------------------------------------------------------------//
 
 static void Led_Blink(uint16_t Time_Between_Blinks, uint16_t Amount_of_Blink, bool* Blink_Mode);
+static uint8_t GCD(uint8_t Button_Pressed_Num, uint8_t USART_Recieved_Num);
 
 //----------------------------------------------------------------------------------------------------//
 
@@ -57,9 +62,16 @@ void Commands_Handling(T_Commands* p)
 			break;
 		case CMD_RESET_BUTTON_COUNTER : Counter_of_Pressed = 0;
 			break;
-		case CMD_SEND_DEVIDER :;
+		case CMD_SEND_DEVIDER :
+		{
+			GCD_Value = GCD(Counter_of_Pressed, Recieve_Number);
+			HAL_UART_Transmit_DMA(&huart1, &GCD_Value, 1);
+		}
 			break;
-		case CMD_BLINK_LED : bBlink_Mode = true;
+		case CMD_BLINK_LED : 
+		{
+			bBlink_Mode = true;
+		}			
 			break;
 		default : ;
 			break;
@@ -95,6 +107,22 @@ static void Led_Blink(uint16_t Time_Between_Blinks ,uint16_t Amount_of_Blink, bo
 		*pBlink_Mode = false;
 	}
 	
+}
+
+//----------------------------------------------------------------------------------------------------//
+
+static uint8_t GCD(uint8_t Button_Pressed_Num, uint8_t USART_Recieved_Num)
+{
+	
+	while (USART_Recieved_Num != 0) 
+	{
+		uint8_t temp = USART_Recieved_Num;
+		USART_Recieved_Num = Button_Pressed_Num % USART_Recieved_Num;
+		Button_Pressed_Num = temp;
+	}
+		
+	return Button_Pressed_Num;
+		
 }
 
 
