@@ -6,5 +6,5 @@
 *.dep
 *.map
 *.lnp
-*.cfr
-#.htm
+*.crf
+*.htm
