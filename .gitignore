@@ -6,3 +6,5 @@
 *.dep
 *.map
 *.lnp
+*.cfr
+#.htm
