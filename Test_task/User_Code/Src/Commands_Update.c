@@ -1,25 +1,17 @@
 #include "Commands_Update.h"
 #include "usart.h"
 
-
 //----------------------------------------------------------------------------------------------------//
 
-#define BUFFER_SIZE 20U
+const char Hello_String[7] = "Hello!\n";
+const char Busy_String[16] = "Device is busy!\n";
 
 //----------------------------------------------------------------------------------------------------//
-
-uint8_t USART_RxBuffer[BUFFER_SIZE];
-uint8_t USART_TxBuffer[BUFFER_SIZE];
-
-T_Commands Command;
 
 uint16_t Counter_of_Pressed = 0;
-char Hello_String[7] = "Hello!\n";
-char Busy_String[16] = "Device is busy!\n";
 bool bButtons_Was_Blocked = false;
 bool bBlink_Mode = false;
 uint8_t GCD_Value = 0;
-uint8_t Num_of_Blink = 0;
 
 extern uint8_t Recieve_Number;
 
@@ -30,25 +22,25 @@ static uint8_t GCD(uint8_t Button_Pressed_Num, uint8_t USART_Recieved_Num);
 
 //----------------------------------------------------------------------------------------------------//
 
-void Commands_Handling(T_Commands* p)
+void Commands_Handling(uint16_t Command)
 {
 	
-	if ((p->Current_Command == CMD_RESET) && bButtons_Was_Blocked)
+	if ((Command == CMD_RESET) && bButtons_Was_Blocked)
 		bButtons_Was_Blocked = false;
 	
 	
-	if (p->Current_Command && bButtons_Was_Blocked)
+	if (Command && bButtons_Was_Blocked)
 	{
 		HAL_UART_Transmit_DMA(&huart1, (uint8_t*)Busy_String, 16);
-		p->Current_Command = CMD_NONE;
+		Command = CMD_NONE;
 	}
 	
 	
-	switch(p->Current_Command)
+	switch(Command)
 	{
-		case CMD_POWER_ON : HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+		case CMD_POWER_ON : HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
  			break;
-		case CMD_RESET : HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+		case CMD_RESET : HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 			break;
 		case CMD_SEND_BUSY : bButtons_Was_Blocked = true;
 			break;
@@ -78,7 +70,6 @@ void Commands_Handling(T_Commands* p)
 	}
 	
 	Led_Blink(5, Counter_of_Pressed, &bBlink_Mode);
-	p->Current_Command = CMD_NONE;
 	
 }
 
@@ -103,7 +94,7 @@ static void Led_Blink(uint16_t Time_Between_Blinks ,uint16_t Amount_of_Blink, bo
 	{
 		Counter_Between_Blink = 0;
 		Amount_of_Blinks--;
-		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+		HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 		*pBlink_Mode = false;
 	}
 	

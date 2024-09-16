@@ -12,15 +12,15 @@
 typedef enum
 {
 	
-	CMD_NONE = 0,
-	CMD_POWER_ON,
-	CMD_RESET,
-	CMD_SEND_BUSY,
-	CMD_SEND_MESSAGE,
-	CMD_SEND_BUTTON_PRESSED_COUNTER,
-	CMD_RESET_BUTTON_COUNTER,
-	CMD_SEND_DEVIDER,
-	CMD_BLINK_LED
+	CMD_NONE = 0,												// Нет команды
+	CMD_POWER_ON,												// Команда на квлючение питания
+	CMD_RESET,													// Команда на сброс
+	CMD_SEND_BUSY,											// Команда на блокировку всех кнопок и отправку сообщение что устройство занято по USART
+	CMD_SEND_MESSAGE,										// Команда на отправку сообщения "Hello" по USART
+	CMD_SEND_BUTTON_PRESSED_COUNTER,		// Команда на увеличение значения счетчика и отправка этого значения по USART
+	CMD_RESET_BUTTON_COUNTER,						// Сброс счетчика
+	CMD_SEND_DEVIDER,										// Отправить по USART значение наибольшего общего делителя счетчика и значения, полученного по USART
+	CMD_BLINK_LED												// Поморгать светодиодом значение счетчика
 	
 } E_Commands;
 

@@ -12,50 +12,48 @@ T_Button Button_4;
 //----------------------------------------------------------------------------------------------------//
 
 static E_Buttons_Pressed Button_Update(T_Button* p, uint16_t GPIO_Status);
+static void Command_Select(E_Commands* pCommand, uint16_t Button_Status, E_Commands Command_1, E_Commands Command_2);
 
 //----------------------------------------------------------------------------------------------------//
 
+/**
+  * @brief  Функция инициализации кнопки
+  * @param  pShort_Response_Time - указатель на задержку срабатывания короткого нажатия кнопки
+	* @param	pLong_Response_Time - указатель на время срабатывания длинного нажатия книпки
+	* @retval None
+  */
 void Button_Init(T_Button* p,
-								 uint16_t* Short_Response_Time,
-								 uint16_t* Long_Response_Time)
+								 uint16_t* pShort_Response_Time,
+								 uint16_t* pLong_Response_Time)
 {
 	
-	p->pShort_Response_Time = Short_Response_Time;
-	p->pLong_Response_Time = Long_Response_Time;
+	p->pShort_Response_Time = pShort_Response_Time;
+	p->pLong_Response_Time = pLong_Response_Time;
 	p->bIs_Init = true;
 	
 }
 
 //----------------------------------------------------------------------------------------------------//
 
+/**
+  * @brief  Функция обработки нажатий кнопки
+  * @param  None
+	* @retval E_Commands - текущая команда, в зависимости от нажатой кнопки
+  */
 E_Commands Buttons_Update(void)
 {
 	
 	E_Commands Current_command = CMD_NONE;
 	
-	uint16_t gpio_status_1 = Button_Update(&Button_1, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_4));
-	uint16_t gpio_status_2 = Button_Update(&Button_2, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5));
-	uint16_t gpio_status_3 = Button_Update(&Button_3, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_6));
-	uint16_t gpio_status_4 = Button_Update(&Button_4, HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_7));
+	uint16_t button_status_1 = Button_Update(&Button_1, HAL_GPIO_ReadPin(BUTTON_1_GPIO_Port, BUTTON_1_Pin));
+	uint16_t button_status_2 = Button_Update(&Button_2, HAL_GPIO_ReadPin(BUTTON_2_GPIO_Port, BUTTON_2_Pin));
+	uint16_t button_status_3 = Button_Update(&Button_3, HAL_GPIO_ReadPin(BUTTON_3_GPIO_Port, BUTTON_3_Pin));
+	uint16_t button_status_4 = Button_Update(&Button_4, HAL_GPIO_ReadPin(BUTTON_4_GPIO_Port, BUTTON_4_Pin));
 	
-
-	if (gpio_status_1 == BUTTON_SHORT_PRESSED)
-		Current_command = CMD_POWER_ON;
-	else if (gpio_status_1 == BUTTON_LONG_PRESSED)
-		Current_command = CMD_RESET;
-	else if (gpio_status_2 == BUTTON_SHORT_PRESSED)
-		Current_command = CMD_SEND_BUSY;
-	else if (gpio_status_2 == BUTTON_LONG_PRESSED)
-		Current_command = CMD_SEND_MESSAGE;
-	else if (gpio_status_3 == BUTTON_SHORT_PRESSED)
-		Current_command = CMD_SEND_BUTTON_PRESSED_COUNTER; 
-	else if (gpio_status_3 == BUTTON_LONG_PRESSED)
-		Current_command = CMD_RESET_BUTTON_COUNTER;
-	else if (gpio_status_4 == BUTTON_SHORT_PRESSED)
-		Current_command = CMD_SEND_DEVIDER;
-	else if (gpio_status_4 == BUTTON_LONG_PRESSED)
-		Current_command = CMD_BLINK_LED;
-	
+	Command_Select(&Current_command, button_status_1, CMD_POWER_ON, CMD_RESET);
+	Command_Select(&Current_command, button_status_2, CMD_SEND_BUSY, CMD_SEND_MESSAGE);
+	Command_Select(&Current_command, button_status_3, CMD_SEND_BUTTON_PRESSED_COUNTER, CMD_RESET_BUTTON_COUNTER);
+	Command_Select(&Current_command, button_status_4, CMD_SEND_DEVIDER, CMD_BLINK_LED);
 	
 	return Current_command;
 	
@@ -63,6 +61,15 @@ E_Commands Buttons_Update(void)
 
 //----------------------------------------------------------------------------------------------------//
 
+/**
+  * @brief  Функция обработки нажатия кнопки
+  * @param  p - указатель на сткуктуру кнопки T_Button
+	* @param	GPIO_Status - статус GPIO
+	* @retval E_Buttons_Pressed - статус состояния кнопки, может иметь слудующий значения:
+						* @arg BUTTON_LONG_PRESSED  - длинное нажатие
+						* @arg BUTTON_SHORT_PRESSED - короткое нажатие
+						* @arg BUTTON_NONE_PRESSED  - не нажата
+  */
 static E_Buttons_Pressed Button_Update(T_Button* p, uint16_t GPIO_Status)
 {
 	
@@ -96,6 +103,27 @@ static E_Buttons_Pressed Button_Update(T_Button* p, uint16_t GPIO_Status)
 	}
 	
 	return Button_Stauts_Temp;
+	
+}
+
+//----------------------------------------------------------------------------------------------------//
+
+/**
+  * @brief  Функция присваевает текущей команде статус, в зависимости от статуса кнопки
+  * @param  pCommand - указатель на переменную текущей команды
+	* @param	Button_Status - статус кнопки, может иметь следующие значения:
+						* @arg BUTTON_LONG_PRESSED  - длинное нажатие
+						* @arg BUTTON_SHORT_PRESSED - короткое нажатие
+						* @arg BUTTON_NONE_PRESSED  - не нажата
+  * @retval None
+  */
+static void Command_Select(E_Commands* pCommand, uint16_t Button_Status, E_Commands Command_1, E_Commands Command_2)
+{
+	
+	if (!Button_Status)
+		return;
+	
+	*pCommand = (Button_Status == BUTTON_SHORT_PRESSED) ? Command_1 : Command_2;
 	
 }
 

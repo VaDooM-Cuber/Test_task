@@ -159,8 +159,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	
 	if (htim->Instance == TIM4)
 	{		
-		Command.Current_Command = Buttons_Update();
-		Commands_Handling(&Command);
+		
+		static E_Commands Command;
+		Command = Buttons_Update();
+		Commands_Handling(Command);
 	}
 	
 }
