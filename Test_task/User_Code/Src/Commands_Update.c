@@ -8,10 +8,7 @@ const char Busy_String[16] = "Device is busy!\n";
 
 //----------------------------------------------------------------------------------------------------//
 
-uint16_t Counter_of_Pressed = 0;
-bool bButtons_Was_Blocked = false;
-bool bBlink_Mode = false;
-uint8_t GCD_Value = 0;
+T_Service Service;
 
 extern uint8_t Recieve_Number;
 
@@ -25,11 +22,11 @@ static uint8_t GCD(uint8_t Button_Pressed_Num, uint8_t USART_Recieved_Num);
 void Commands_Handling(uint16_t Command)
 {
 	
-	if ((Command == CMD_RESET) && bButtons_Was_Blocked)
-		bButtons_Was_Blocked = false;
+	if ((Command == CMD_RESET) && Service.bButtons_Was_Blocked)
+		Service.bButtons_Was_Blocked = false;
 	
 	
-	if (Command && bButtons_Was_Blocked)
+	if (Command && Service.bButtons_Was_Blocked)
 	{
 		HAL_UART_Transmit_DMA(&huart1, (uint8_t*)Busy_String, 16);
 		Command = CMD_NONE;
@@ -42,39 +39,47 @@ void Commands_Handling(uint16_t Command)
  			break;
 		case CMD_RESET : HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 			break;
-		case CMD_SEND_BUSY : bButtons_Was_Blocked = true;
+		case CMD_SEND_BUSY : Service.bButtons_Was_Blocked = true;
 			break;
 		case CMD_SEND_MESSAGE : HAL_UART_Transmit_DMA(&huart1, (uint8_t*)Hello_String, 7);
 			break;
 		case CMD_SEND_BUTTON_PRESSED_COUNTER :
 		{
-			Counter_of_Pressed++;
-			HAL_UART_Transmit_DMA(&huart1, (uint8_t*)&Counter_of_Pressed, 1);
+			Service.Counter_of_Pressed++;
+			HAL_UART_Transmit_DMA(&huart1, (uint8_t*)&Service.Counter_of_Pressed, 1);
 		}
 			break;
-		case CMD_RESET_BUTTON_COUNTER : Counter_of_Pressed = 0;
+		case CMD_RESET_BUTTON_COUNTER : Service.Counter_of_Pressed = 0;
 			break;
 		case CMD_SEND_DEVIDER :
 		{
-			GCD_Value = GCD(Counter_of_Pressed, Recieve_Number);
-			HAL_UART_Transmit_DMA(&huart1, &GCD_Value, 1);
+			Service.GCD_Value = GCD(Service.Counter_of_Pressed, Recieve_Number);
+			HAL_UART_Transmit_DMA(&huart1, &Service.GCD_Value, 1);
 		}
 			break;
 		case CMD_BLINK_LED : 
 		{
-			bBlink_Mode = true;
+			Service.bBlink_Mode = true;
 		}			
 			break;
 		default : ;
 			break;
 	}
 	
-	Led_Blink(5, Counter_of_Pressed, &bBlink_Mode);
+	Led_Blink(5, Service.Counter_of_Pressed, &Service.bBlink_Mode);
 	
 }
 
 //----------------------------------------------------------------------------------------------------//
 
+/**
+  * @brief  Функция мигания светодиодом количестро раз, равное какому либо установленному значению
+  * @param  Time_Between_Blinks - задержка между миганиями светодиодом
+	* @param	Amount_of_Blink - количество раз, которое нужно помигать
+	* @param	pBlink_Mode - указатель на флаг, коворящий о том, что данная функция должна работать.
+													Когда функция отработает, она опускает этот флаг
+	* @retval None
+  */
 static void Led_Blink(uint16_t Time_Between_Blinks ,uint16_t Amount_of_Blink, bool* pBlink_Mode)
 {
 	
